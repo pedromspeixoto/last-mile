@@ -1,0 +1,294 @@
+version: '3'
+
+services:
+
+  # New Relic Infrastructure Agent
+  newrelic-agent:
+    container_name: newrelic-agent
+    build:
+      context: monitor/newrelic/
+      dockerfile: Dockerfile
+    cap_add:
+      - SYS_PTRACE
+    network_mode: host
+    pid: host
+    privileged: true
+    volumes:
+      - "/:/host:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    restart: unless-stopped
+
+  # Last Mile Database - Must only be used for Local/DEV environments
+  lastmile-database:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - lastmile-database-data:/var/lib/postgresql/data/
+    networks:
+      - lastmile-compose-network
+
+  # RabbitMQ - Queue
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    hostname: "rabbitmq"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "${ERLANG_COOKIE}"
+      RABBITMQ_DEFAULT_USER: "${DEFAULT_USER}"
+      RABBITMQ_DEFAULT_PASS: "${DEFAULT_PASS}"
+      RABBITMQ_DEFAULT_VHOST: "${DEFAULT_VHOST}"
+    restart: unless-stopped
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    networks:
+      - lastmile-compose-network
+  
+  # Logstash
+  logstash:
+    image: custom-logstash:latest
+    build:
+      context: logs/logstash/
+      dockerfile: Dockerfile
+    environment:
+      ENVIRONMENT: "${ENVIRONMENT}"
+    ports:
+      - "25826:25826"
+      - "5044:5044"
+    restart: unless-stopped
+    networks:
+      - lastmile-compose-network
+
+  # Filebeat
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.2.0
+    build:
+      context: logs/logstash/
+      dockerfile: Dockerfile
+    volumes:
+      - ./logs/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./logs/filebeat/data:/usr/share/filebeat/data:rw
+    user: root
+    restart: unless-stopped
+    depends_on:
+      - logstash
+    networks:
+      - lastmile-compose-network
+
+  # Discovery Service
+  discovery-service:
+    image: discovery-service:latest
+    build:
+      context: ../../lastmile.discovery-service/
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_PROFILES_ACTIVE: "${ENVIRONMENT}"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+    networks:
+      - lastmile-compose-network
+
+  # Gateway Service
+  gateway-service:
+    image: gateway-service:latest
+    build:
+      context: ../../lastmile.gateway-service/
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - "SPRING_PROFILES_ACTIVE=${ENVIRONMENT}"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+    networks:
+      - lastmile-compose-network
+
+  # Auth Service
+  auth-service:
+    image: auth-service:latest
+    build:
+      context: ../../lastmile.auth-service/
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: "${ENVIRONMENT}"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+    networks:
+      - lastmile-compose-network
+
+  # Account Service
+  account-service:
+    image: account-service:latest
+    build:
+      context: ../../lastmile.account-service/
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      SPRING_PROFILES_ACTIVE: "${ENVIRONMENT}"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+    networks:
+      - lastmile-compose-network
+
+  # Driver Service
+  driver-service:
+    image: driver-service:latest
+    build:
+      context: ../../lastmile.driver-service/
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8095:8095"
+    environment:
+      SPRING_PROFILES_ACTIVE: "${ENVIRONMENT}"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"      
+    dns:
+      - 8.8.8.8
+    networks:
+      - lastmile-compose-network
+
+  # Customer Service
+  customer-service:
+    image: customer-service:latest
+    build:
+      context: ../../lastmile.customer-service/
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8092:8092"
+    environment:
+      SPRING_PROFILES_ACTIVE: "${ENVIRONMENT}"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+    networks:
+      - lastmile-compose-network
+
+  # Order Service
+  order-service:
+    image: order-service:latest
+    build:
+      context: ../../lastmile.order-service/
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8097:8097"
+    environment:
+      SPRING_PROFILES_ACTIVE: "${ENVIRONMENT}"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+    networks:
+      - lastmile-compose-network
+
+  # Address Service
+  address-service:
+    image: address-service:latest
+    build:
+      context: ../../lastmile.address-service/
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8099:8099"
+    environment:
+      SPRING_PROFILES_ACTIVE: "${ENVIRONMENT}"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+    networks:
+      - lastmile-compose-network
+
+  # Payment Service
+  payment-service:
+    image: payment-service:latest
+    build:
+      context: ../../lastmile.payment-service/
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8093:8093"
+    environment:
+      SPRING_PROFILES_ACTIVE: "${ENVIRONMENT}"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+    networks:
+      - lastmile-compose-network
+
+  # Quartz Service
+  quartz-service:
+    image: quartz-service:latest
+    build:
+      context: ../../lastmile.quartz-service/
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8094:8094"
+    environment:
+      SPRING_PROFILES_ACTIVE: "${ENVIRONMENT}"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+    networks:
+      - lastmile-compose-network
+
+  # Order Engine
+  order-engine:
+    image: order-engine:latest
+    build:
+      context: ../../lastmile.order-engine/
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8096:8096"
+    environment:
+      SPRING_PROFILES_ACTIVE: "${ENVIRONMENT}"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+    networks:
+      - lastmile-compose-network
+
+  # Notification Engine
+  notification-engine:
+    image: notification-engine:latest
+    build:
+      context: ../../lastmile.notification-engine/
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8098:8098"
+    environment:
+      SPRING_PROFILES_ACTIVE: "${ENVIRONMENT}"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+    networks:
+      - lastmile-compose-network
+
+networks: 
+  lastmile-compose-network:
+    external: true
+
+volumes:
+  lastmile-database-data:

@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS payment_details (
+    id serial PRIMARY KEY,
+    payment_detail_identification varchar(255) not null,
+    payment_detail_type varchar(255) not null,
+    entity_identification varchar(255) not null,
+    entity_type varchar(255) not null,
+    payment_email varchar(255),
+    payment_fiscal_number varchar(255),
+    payment_phone_number varchar(255),
+    card_last_four_digits varchar(255),
+    card_type varchar(255),
+    card_expiry_date varchar(255),
+    payment_token varchar(255),
+    external_entity varchar(255) not null,
+    external_entity_identification varchar(255),
+    status varchar(255) not null,
+    created_by varchar(255),
+    created_date timestamp,
+    last_modified_by varchar(255),
+    last_modified_date timestamp,
+    UNIQUE(payment_detail_identification)
+);

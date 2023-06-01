@@ -1,0 +1,2 @@
+INSERT INTO users (user_identification, username, password, authorities, activated)
+VALUES ('a9ddeaf7-9f19-43fe-9461-1d3c80756716','lastmile', '$2a$10$fWNTd3H.u7G/aNROVQSifebOkZ2xzU5nUPOCI2Ld42M8E25/ljJqK', 'ROLE_ADMIN', true);

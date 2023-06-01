@@ -1,0 +1,2 @@
+INSERT INTO out_payments_accounts (id, out_payment_account_identification, account_holder_name, account_iban, account_email, account_phone_number, account_bank_account_country_code, account_payment_type, external_entity, external_entity_identification, status)
+VALUES (1, '9aa16342-2d09-4408-b82b-899b19590aa3', 'Last Mile Logistics Solution - PT', 'PT538783621', 'lastmile@gmail.com', '+351914727824', 'PT', 'transfer' ,'EASYPAY', '01cdd656-8116-4a00-a908-7e8de8ed3ce1', 'ACTIVE');

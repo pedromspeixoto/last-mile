@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://lastmile-database:5432/auth-database
+    username: postgres
+    password: Lastmile2020!
+    jpa:
+      hibernate:
+        ddl-auto: none
+      show-sql: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: false
+    out-of-order: false
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance.id:${random.value}}
+  client:
+    serviceUrl:
+      defaultZone: http://discovery-service:8761/eureka/
+    healthcheck:
+      enabled: true
+
+lastmile:
+  swagger:
+    enabled: true
+  log:
+    requests: true
+
+logging:
+  level:
+    com.lastmile: INFO
+    com.netflix: WARN
+    org.apache.http: INFO
+    org.hibernate.SQL.type.deor.sql: INFO
+    org.springframework.web: INFO

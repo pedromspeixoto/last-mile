@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: gateway-service
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+server:
+  port: 8080
+---
+spring:
+  profiles: local
+  cloud:
+    kubernetes:
+      enabled: false
+      config:
+        enabled: false
+---
+spring:
+  profiles: dev
+  cloud:
+    kubernetes:
+      enabled: false
+      config:
+        enabled: false
+---
+spring:
+  profiles: prod
+  cloud:
+    kubernetes:
+      enabled: true
+      config:
+        enabled: true

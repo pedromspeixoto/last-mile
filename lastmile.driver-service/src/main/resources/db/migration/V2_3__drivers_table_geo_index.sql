@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS drivers_geo_index on drivers USING gist(ll_to_earth(latitude, longitude));

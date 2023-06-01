@@ -1,0 +1,81 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true #i dont remember why but i think there is a bug with spring cloud and OAuth2ClientContext
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://lastmile-database:5432/payment-database
+    username: postgres
+    password: Lastmile2020!
+    jpa:
+      hibernate:
+        ddl-auto: none
+      show-sql: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: false
+    out-of-order: false
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance.id:${random.value}}
+  client:
+    serviceUrl:
+      defaultZone: http://discovery-service:8761/eureka/
+    healthcheck:
+      enabled: true
+
+feign:
+  hystrix:
+    enabled: true
+  client:
+    config:
+      default:
+        connectTimeout: 180000
+        readTimeout: 180000
+
+hystrix:
+  threadpool.default.coreSize: "20"
+  threadpool.default.maxQueueSize: "500000"
+  threadpool.default.keepAliveTimeMinutes: "2"
+  threadpool.default.queueSizeRejectionThreshold: "500000"
+  command:
+    default:
+      fallback.isolation.semaphore.maxConcurrentRequests: "20"
+      execution:
+        timeout:
+          enabled: "false"
+        isolation:
+          strategy: "THREAD"
+          thread:
+            timeoutInMilliseconds: "180000"
+
+lastmile:
+  swagger:
+    enabled: true
+  log:
+    requests: true
+
+easypay:
+  api:
+    base-url: https://api.test.easypay.pt/2.0/
+    frequent-sufix: frequent/
+    capture-sufix: capture/
+    out-payment-sufix: out_payment
+    headers:
+      account-id: 
+        name: AccountId
+        value: <account-id>	
+      api-key:
+        name: ApiKey
+        value: <api-key>
+      signature:
+        name: Signature
+        value: <signature>
+
+logging:
+  level:
+    com.lastmile: INFO
+    com.netflix: WARN
+    org.apache.http: WARN
+    org.hibernate.SQL.type.deor.sql: WARN
+    org.springframework.web: WARN

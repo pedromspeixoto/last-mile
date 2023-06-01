@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS addresses (
+    id serial PRIMARY KEY,
+    address_identification varchar(255) not null,
+    entity_identification varchar(255) not null,
+    entity_type varchar(255) not null,
+    address_type varchar(255) not null,
+    address_line_1 varchar(255) not null,
+    address_line_2 varchar(255),
+    street_number varchar(255) not null,
+    floor varchar(255),
+    zip_code varchar(255) not null,
+    city varchar(255) not null,
+    country varchar(255) not null,
+    address_notes varchar(255),
+    created_by varchar(255),
+    created_date timestamp,
+    last_modified_by varchar(255),
+    last_modified_date timestamp,
+    UNIQUE(address_identification)
+);

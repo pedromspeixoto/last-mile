@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: order-engine
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+server:
+  servlet:
+    context-path: /order-engine
+  port: 8096
+---
+spring:
+  profiles: local
+  cloud:
+    kubernetes:
+      enabled: false
+      config:
+        enabled: false
+---
+spring:
+  profiles: dev
+  cloud:
+    kubernetes:
+      enabled: false
+      config:
+        enabled: false
+---
+spring:
+  profiles: prod
+  cloud:
+    kubernetes:
+      enabled: true
+      config:
+        enabled: true

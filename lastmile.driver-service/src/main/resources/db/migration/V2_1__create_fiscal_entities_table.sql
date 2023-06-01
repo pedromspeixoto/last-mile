@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS fiscal_entities (
+    id serial PRIMARY KEY,
+    fiscal_entity_identification varchar(255) not null,
+    name varchar(255) not null,
+    email varchar(255) not null,
+    phone_number varchar(255) not null,
+    fiscal_number varchar(255) not null,
+    bank_account_holder_name varchar(255) not null,
+    bank_account_iban varchar(255) not null,
+    bank_account_country_code varchar(255) not null,
+    payment_frequency varchar(255) not null,
+    active_address_id varchar(255),
+    active_billing_address_id varchar(255),
+    status varchar(255) not null,
+    entity_validated boolean not null,
+    created_by varchar(255),
+    created_date timestamp,
+    last_modified_by varchar(255),
+    last_modified_date timestamp,
+    UNIQUE(fiscal_entity_identification)
+);

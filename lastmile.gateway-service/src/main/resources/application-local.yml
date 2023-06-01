@@ -1,0 +1,89 @@
+ribbon:
+  ReadTimeout: 20000
+  ConnectTimeout: 20000
+
+zuul:
+  retryable: true
+  ignoredServices: '*'
+  host:
+    connect-timeout-millis: 20000
+    socket-timeout-millis: 20000
+  routes:
+    account-service:
+      path: /accounts/**
+      serviceId: account-service
+      stripPrefix: false
+      sensitive-headers: "Cookie, Set-Cookie"
+
+    driver-service:
+      path: /drivers/**
+      serviceId: driver-service
+      stripPrefix: false
+      sensitive-headers: "Cookie, Set-Cookie"
+
+    customer-service:
+      path: /customers/**
+      serviceId: customer-service
+      stripPrefix: false
+      sensitive-headers: "Cookie, Set-Cookie"
+
+    order-service:
+      path: /orders/**
+      serviceId: order-service
+      stripPrefix: false
+      sensitive-headers: "Cookie, Set-Cookie"
+
+    address-service:
+      path: /addresses/**
+      serviceId: address-service
+      stripPrefix: false
+      sensitive-headers: "Cookie, Set-Cookie"
+
+    payment-service:
+      path: /payments/**
+      serviceId: payment-service
+      stripPrefix: false
+      sensitive-headers: "Cookie, Set-Cookie"
+
+lastmile:
+  swagger:
+    enabled: true
+  ssl:
+    enabled: false
+  log:
+    requests: true
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance.id:${random.value}}
+  client:
+    serviceUrl:
+      defaultZone: http://discovery-service:8761/eureka/
+    healthcheck:
+      enabled: true
+
+security:
+  oauth2:
+    client:
+      clientId: gateway-service
+      clientSecret: 1234
+      accessTokenUri: http://auth-service:8081/uaa/oauth/token
+      grant-type: client_credentials
+      scope: server
+    resource:
+      user-details-uri: http://auth-service:8081/uaa/user/details
+      user-info-uri: http://auth-service:8081/uaa/user/current #zuul path to get current info about the context
+      token-info-uri: http://auth-service:8081/uaa/oauth/check_token #add this information
+
+auth:
+  routes:
+    swagger: "/, /csrf, /v2/api-docs, /swagger-resources/configuration/ui, /configuration/ui, /swagger-resources, /swagger-resources/configuration/security, /configuration/security, /swagger-ui.html, /swagger-ui.html/**, /webjars/**, /accounts/v2/api-docs, /customers/v2/api-docs, /uaa/v2/api-docs, /orders/v2/api-docs, /drivers/v2/api-docs, /addresses/v2/api-docs, /payments/v2/api-docs"
+    permission-links: "/uaa/oauth/token, /accounts/create, /accounts/login, /accounts/resend-activation-code, /orders/track**, /orders/estimate, /accounts/**/activate, /drivers/vehicles/search, /customers/**/orders, /orders/**/track, /orders/twilio-handle-voice, /orders/coverage**, /payments/easypay/callback, /payments/easypay/payment-callback"
+
+logging:
+  level:
+    com.lastmile: INFO
+    com.netflix: WARN
+    org.apache.http: WARN
+    org.hibernate.SQL.type.deor.sql: WARN
+    org.springframework.web: WARN

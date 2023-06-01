@@ -1,0 +1,83 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true #i dont remember why but i think there is a bug with spring cloud and OAuth2ClientContext
+  rabbitmq: 
+    host: rabbitmq
+    username: rabbitmq
+    password: rabbitmq
+    port: 5672
+    virtual-host: /
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance.id:${random.value}}
+  client:
+    serviceUrl:
+      defaultZone: http://discovery-service:8761/eureka/
+    healthcheck:
+      enabled: true
+
+feign:
+  hystrix:
+    enabled: true
+  client:
+    config:
+      default:
+        connectTimeout: 180000
+        readTimeout: 180000
+
+hystrix:
+  threadpool.default.coreSize: "20"
+  threadpool.default.maxQueueSize: "500000"
+  threadpool.default.keepAliveTimeMinutes: "2"
+  threadpool.default.queueSizeRejectionThreshold: "500000"
+  command:
+    default:
+      fallback.isolation.semaphore.maxConcurrentRequests: "20"
+      execution:
+        timeout:
+          enabled: "false"
+        isolation:
+          strategy: "THREAD"
+          thread:
+            timeoutInMilliseconds: "180000"
+
+lastmile:
+  swagger:
+    enabled: true
+  ssl:
+    enabled: false
+  log:
+    requests: true
+
+logging:
+  level:
+    com.lastmile: INFO
+    com.netflix: WARN
+    org.apache.http: WARN
+    org.hibernate.SQL.type.deor.sql: WARN
+    org.springframework.web: WARN
+
+rabbitmq:
+  dead-letter:
+    name: "dlq"
+  sms:
+    queue: sms
+    routing-keys: sms.account.activation
+    durable: true
+    dead-letter:
+      routing-key: sms.dlq
+  push:
+    queue: push
+    routing-keys: push.account.notification
+    durable: true
+    dead-letter:
+      routing-key: push.dlq
+
+authy:
+  apisid: <your authy api sid>
+  apikey: <your authy api key>
+
+firebase:
+  credentials-file-name: "classpath:last-mile-firebase.json"
+  database-name: https://last-mile-5fe58.firebaseio.com
